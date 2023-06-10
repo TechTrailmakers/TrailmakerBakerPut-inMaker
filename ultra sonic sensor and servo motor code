@@ -1,0 +1,55 @@
+#include <Servo.h>
+
+// Pin Definitions
+#define TRIG_PIN 2
+#define ECHO_PIN 3
+#define SERVO_PIN 9
+
+// Object Definitions
+Servo servo;
+
+// Variable Definitions
+long duration;
+int distance;
+
+// Function to calculate distance measured by ultrasonic sensor
+int getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  duration = pulseIn(ECHO_PIN, HIGH);
+  int distance = duration * 0.034 / 2;  // Speed of sound = 343 m/s
+  return distance;
+}
+
+// Function to control the servo motor
+void moveServo(int angle) {
+  servo.write(angle);
+  delay(300);  // Adjust the delay as per your requirement
+}
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  servo.attach(SERVO_PIN);
+  servo.write(0);
+  delay(2000);  // Initial delay for sensor stability
+  Serial.begin(9600);
+}
+
+void loop() {
+  distance = getDistance();
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance < 30) {  // If wall is close, turn right
+    moveServo(90);  // Adjust the angle as per your requirement
+    delay(500);  // Adjust the delay as per your requirement
+  } else {  // If wall is far, go straight
+    moveServo(0);  // Adjust the angle as per your requirement
+    delay(500);  // Adjust the delay as per your requirement
+  }
+}
